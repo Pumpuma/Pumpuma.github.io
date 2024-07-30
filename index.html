@@ -3,21 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>WebSocket Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #log {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+            margin-bottom: 20px;
+        }
+
+        #messageForm {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #message {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Login</button>
-        </form>
-        <div id="message"></div>
-    </div>
-    <script src="script.js"></script>
+    <h1>WebSocket Client</h1>
+    <div id="log"></div>
+    <form id="messageForm">
+        <input type="text" id="message" placeholder="Type a message" required>
+        <button type="submit">Send</button>
+    </form>
+    <script>
+        const logElement = document.getElementById('log');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('message');
+
+        // Replace this URL with your WebSocket server URL
+        const wsUrl = 'ws://localhost:8080';
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            log('WebSocket connection opened.');
+        };
+
+        ws.onmessage = (event) => {
+            log('Received: ' + event.data);
+        };
+
+        ws.onclose = () => {
+            log('WebSocket connection closed.');
+        };
+
+        ws.onerror = (error) => {
+            log('WebSocket error: ' + error.message);
+        };
+
+        messageForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const message = messageInput.value;
+            ws.send(message);
+            log('Sent: ' + message);
+            messageInput.value = '';
+        });
+
+        function log(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            logElement.appendChild(p);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+    </script>
 </body>
 </html>
